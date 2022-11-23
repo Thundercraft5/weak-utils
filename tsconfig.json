@@ -1,0 +1,21 @@
+{
+	"extends": "@thundercraft5/tsconfig/node18.tsconfig.json",
+	"compilerOptions": {
+		"module": "ESNext",
+		"target": "ESNext",
+		"lib": [
+			"ESNext",
+			"ES2021.WeakRef"
+		],
+		"declarationDir": "dist/types",
+		"emitDecoratorMetadata": false,
+		"noEmitOnError": false
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"exclude": [
+		"node_modules",
+		"dist"
+	]
+}
