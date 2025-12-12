@@ -39,14 +39,17 @@ function cloneProperties<T extends object, O extends object[]>(object: T, ...ite
 	return object as T & TupleToIntersection<O>;
 }
 
+
+const handler = { construct() { return handler } }; //Must return ANY object, so reuse one
+
 function isConstructable(value: any): value is new (...args: any[]) => any {
 	if (typeof value !== "function")
 		return false;
-	const { proxy: p, revoke } = Proxy.revocable(value, { construct() { return value; } });
+	const { proxy: p, revoke } = Proxy.revocable(value, handler);
 	let res: boolean;
 
 	try {
-		new p();
+		new (p)()
 
 		res = true;
 	} catch {
