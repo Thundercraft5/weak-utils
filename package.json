@@ -50,7 +50,7 @@
 	},
 	"devDependencies": {
 		"@thundercraft5/eslint-plugin": "file:../eslint-plugin",
-		"@thundercraft5/tsconfig": "file:../tsconfig",
+		"@thundercraft5/tsconfig": "file:..\\tsconfig",
 		"@thundercraft5/type-utils": "file:../type-utils",
 		"@thundercraft5/weak-utils": "file:",
 		"@types/fs-extra": "9.0.13",

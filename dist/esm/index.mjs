@@ -262,12 +262,13 @@ function cloneProperties(object, ...items) {
       Object.defineProperty(object, key, desc);
   return object;
 }
+var handler = { construct() {
+  return handler;
+} };
 function isConstructable(value) {
   if (typeof value !== "function")
     return false;
-  const { proxy: p, revoke } = Proxy.revocable(value, { construct() {
-    return value;
-  } });
+  const { proxy: p, revoke } = Proxy.revocable(value, handler);
   let res;
   try {
     new p();
@@ -305,8 +306,8 @@ function getWeakProxyHandler(placeholder) {
 }
 Object.defineProperty(invokeWeakProxyHandlerOrDefault, "name", { value: "" });
 function invokeWeakProxyHandlerOrDefault(placeholder, name, ...args) {
-  const handler = getWeakProxyHandler(placeholder);
-  return handler[name].call(handler, ...args);
+  const handler2 = getWeakProxyHandler(placeholder);
+  return handler2[name].call(handler2, ...args);
 }
 function getWeakProxyFinalizer(proxy) {
   return weakProxyHandlers.get(proxy);
@@ -355,24 +356,24 @@ var baseProxyHandler = {
     return invokeWeakProxyHandlerOrDefault(target, "ownKeys", derefPlaceholder(target));
   }
 };
-var WeakProxyConstructor = function WeakProxy(object, handler = {}) {
+var WeakProxyConstructor = function WeakProxy(object, handler2 = {}) {
   if (typeof object !== "object" || !object)
     throw new TypeError("Cannot create weak proxy with a non-object as target or handler");
   const callable = isCallable(object), constructable = isConstructable(object), placeholder = callable && constructable ? new Function() : callable && !constructable ? () => void 0 : !callable && constructable ? class {
-  } : Object.create(Object.prototype), { proxy, revoke } = Proxy.revocable(placeholder, baseProxyHandler), mergedHandler = cloneProperties({}, Reflect, handler), ref = new WeakRef(object);
+  } : Object.create(Object.prototype), { proxy, revoke } = Proxy.revocable(placeholder, baseProxyHandler), mergedHandler = cloneProperties({}, Reflect, handler2), ref = new WeakRef(object);
   finalizers.register(object, { revoke, proxy, placeholder }, proxy);
   refMap.set(proxy, ref);
   placeholderMap.set(placeholder, ref);
   weakProxyHandlers.set(placeholder, mergedHandler);
   return { proxy, revoke };
 };
-var revocable = (target, handler) => {
-  const p = new WeakProxyConstructor(target, handler);
+var revocable = (target, handler2) => {
+  const p = new WeakProxyConstructor(target, handler2);
 };
-var WeakProxy2 = function(target, handler) {
+var WeakProxy2 = function(target, handler2) {
   if (!new.target)
     throw new TypeError(`Constructor ${WeakProxy2.name} requires 'new'`);
-  return new WeakProxyConstructor(target, handler).proxy;
+  return new WeakProxyConstructor(target, handler2).proxy;
 };
 WeakProxy2.prototype = void 0;
 Object.defineProperty(WeakProxy2, "revocable", {
